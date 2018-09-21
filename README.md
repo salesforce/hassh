@@ -37,7 +37,7 @@ For the "Cyberduck" SFTP client (specifically SSH-2.0-Cyberduck/6.7.1.28683 (Mac
 |Message Authentication|```hmac-sha1,hmac-sha1-96,hmac-md5,hmac-md5-96,hmac-sha2-256,hmac-sha2-512```|
 |Compression|```zlib@openssh.com,zlib,none```|
 
-Concatenating these algorithms together with a delimiter of ";" gives the hasshAlgorithms, which is useful for detailed analysis.
+Concatenating these algorithms together with a delimiter of ";" gives the hasshAlgorithms, which is useful for detailed analysis.  
 ```curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha1,diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group14-sha256,diffie-hellman-group15-sha512,diffie-hellman-group16-sha512,diffie-hellman-group17-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256@ssh.com,diffie-hellman-group15-sha256,diffie-hellman-group15-sha256@ssh.com,diffie-hellman-group15-sha384@ssh.com,diffie-hellman-group16-sha256,diffie-hellman-group16-sha384@ssh.com,diffie-hellman-group16-sha512@ssh.com,diffie-hellman-group18-sha512@ssh.com;aes128-cbc,aes128-ctr,aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr,blowfish-cbc,blowfish-ctr,cast128-cbc,cast128-ctr,idea-cbc,idea-ctr,serpent128-cbc,serpent128-ctr,serpent192-cbc,serpent192-ctr,serpent256-cbc,serpent256-ctr,3des-cbc,3des-ctr,twofish128-cbc,twofish128-ctr,twofish192-cbc,twofish192-ctr,twofish256-cbc,twofish256-ctr,twofish-cbc,arcfour,arcfour128,arcfour256;hmac-sha1,hmac-sha1-96,hmac-md5,hmac-md5-96,hmac-sha2-256,hmac-sha2-512;zlib@openssh.com,zlib,none```
 
 Finally the hassh is simply the MD5 of hasshAlgorithms, and is used for storage, searching and sharing. Some examples follow:
@@ -59,7 +59,7 @@ For a standard SSH-2.0-OpenSSH_5.3 SSH server, the set of supported algorithms i
 |Message Authentication|```hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160,hmac-ripemd160@openssh.com,hmac-sha1-96,hmac-md5-96```|
 |Compression|```none,zlib@openssh.com```|
 
-Concatenating these algorithms together with a delimiter of ";" gives the hasshServerAlgorithms, which is useful for detailed analysis.
+Concatenating these algorithms together with a delimiter of ";" gives the hasshServerAlgorithms, which is useful for detailed analysis.  
 ```diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1;aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,aes256-cbc,arcfour,rijndael-cbc@lysator.liu.se;hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160,hmac-ripemd160@openssh.com,hmac-sha1-96,hmac-md5-96;none,zlib@openssh.com```
 
 Finally the hasshServer is simply the MD5 of hasshServerAlgorithms, some examples follow:
@@ -73,4 +73,4 @@ Finally the hasshServer is simply the MD5 of hasshServerAlgorithms, some example
 - Salesforce Engineering blog TBA
 
 ## Credits:
-hassh and hasshServer were conceived and developed by [Ben Reardon](mailto:breardon@salesforce.com) (@benreardon) within the Detection Cloud Team at Salesforce, with inspiration and contributions from [Adel Karimi](mailto:akarimishiraz@salesforce.com) (@0x4d31) and the [JA3 crew](https://github.com/salesforce/ja3/)  crew:[John B. Althouse](mailto:jalthouse@salesforce.com)  , [Jeff Atkinson](mailto:jatkinson@salesforce.com) and [Josh Atkins](mailto:j.atkins@salesforce.com)
+hassh and hasshServer were conceived and developed by [Ben Reardon](mailto:breardon@salesforce.com) (@benreardon(https://twitter.com/@benreardon)) within the Detection Cloud Team at Salesforce, with inspiration and contributions from [Adel Karimi](mailto:akarimishiraz@salesforce.com) (@0x4d31) and the [JA3 crew](https://github.com/salesforce/ja3/)  crew:[John B. Althouse](mailto:jalthouse@salesforce.com)  , [Jeff Atkinson](mailto:jatkinson@salesforce.com) and [Josh Atkins](mailto:j.atkins@salesforce.com)
