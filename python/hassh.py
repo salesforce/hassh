@@ -286,6 +286,8 @@ def client_hassh(packet, pdict):
         cmastc = packet.ssh.mac_algorithms_server_to_client
     if 'compression_algorithms_server_to_client' in packet.ssh.field_names:
         ccastc = packet.ssh.compression_algorithms_server_to_client
+    if 'server_host_key_algorithms' in packet.ssh.field_names:
+        cshka = packet.ssh.server_host_key_algorithms
     # Create hassh
     hassh_str = ';'.join([ckex, ceacts, cmacts, ccacts])
     hassh = md5(hassh_str.encode()).hexdigest()
@@ -306,7 +308,8 @@ def client_hassh(packet, pdict):
               "clstc": clstc,
               "ceastc": ceastc,
               "cmastc": cmastc,
-              "ccastc": ccastc}
+              "ccastc": ccastc,
+              "cshka": cshka}
     return record
 
 
@@ -344,6 +347,8 @@ def server_hassh(packet, pdict):
         smacts = packet.ssh.mac_algorithms_client_to_server
     if 'compression_algorithms_client_to_server' in packet.ssh.field_names:
         scacts = packet.ssh.compression_algorithms_client_to_server
+    if 'server_host_key_algorithms' in packet.ssh.field_names:
+        sshka = packet.ssh.server_host_key_algorithms
     # Create hasshServer
     hasshs_str = ';'.join([skex, seastc, smastc, scastc])
     hasshs = md5(hasshs_str.encode()).hexdigest()
@@ -364,7 +369,8 @@ def server_hassh(packet, pdict):
               "slstc": slstc,
               "seacts": seacts,
               "smacts": smacts,
-              "scacts": scacts}
+              "scacts": scacts,
+              "sshka": sshka}
     return record
 
 
