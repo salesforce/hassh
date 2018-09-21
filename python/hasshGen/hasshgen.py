@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
-"""Just a sample script to automate building docker images with different SSH
-clients/versions and generating client HASSHs"""
+# Copyright (c) 2018, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license.
+# For full license text, see the LICENSE file in the repo root
+# or https://opensource.org/licenses/BSD-3-Clause
 
 import argparse
 import json
@@ -9,12 +12,11 @@ import time
 from subprocess import Popen
 
 __author__ = "Adel '0x4D31' Karimi"
-__copyright__ = "Copyright (c) 2018, salesforce.com, inc."
-__credits__ = ["Ben Reardon", "Adel Karimi"]
-__license__ = "BSD 3-Clause License"
-__version__ = "1.0"
-__maintainer__ = "Adel '0x4D31' Karimi"
 __email__ = "akarimishiraz@salesforce.com"
+__version__ = "1.0"
+__copyright__ = "Copyright (c) 2018, salesforce.com, inc."
+__license__ = "BSD 3-Clause License"
+
 
 # Default command for running hassh.py
 HASSH_COMMAND = 'python3 ../hassh.py -i en1 -l json -o fingerprint.json'
