@@ -5,6 +5,6 @@ RUN apk --no-cache add python3 gcc \
     py-lxml tshark \
     && pip3 install pyshark
 WORKDIR /opt/hassh
-COPY hassh.py .
+ADD https://raw.githubusercontent.com/salesforce/hassh/master/python/hassh.py .
 ENTRYPOINT ["python3","hassh.py"]
 CMD ["-h"]
