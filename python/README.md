@@ -17,7 +17,7 @@ You can use [hasshGen.py](hasshGen/) to automate building docker images with dif
     > `pipenv install`
 
 4. Test:
-    > `$ pipenv run ./hassh.py -h`
+    > `pipenv run ./hassh.py -h`
 
 Output:
 
@@ -71,9 +71,9 @@ Output:
         [-] Client HASSH: a7a87fbe86774c2e40cc4a7ea2ab1b3c
         [-] Client HASSH String: diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1;aes128-ctr,aes192-ctr,aes256-ctr,aes256-cbc,rijndael-cbc@lysator.liu.se,aes192-cbc,aes128-cbc,blowfish-cbc,arcfour128,arcfour,cast128-cbc,3des-cbc;hmac-sha2-256,hmac-sha2-512,hmac-sha1,hmac-sha1-96,hmac-md5,hmac-md5-96,hmac-ripemd160,hmac-ripemd160@openssh.com;none
 
- ```
+```
 
- JSON Output:
+JSON Output:
  ```javascript
 {
   "timestamp": "2018-09-07T02:28:18.655085",
@@ -101,16 +101,38 @@ Output:
 }
 ```
 
-  * Read from an input PCAP file (```-r pcapfile.pcap```) or a directory of PCAP files (```-d pcap_dir/```):
+  * Reading from an input PCAP file (```-r pcapfile.pcap```) or a directory of PCAP files (```-d pcap_dir/```):
 
  ```
     $ ./hassh.py -r traffic.pcap -l csv -o hassh.csv --print
  ```
 
- CSV Output:
-
+CSV Output:
 ```
 timestamp,sourceIp,destinationIp,sourcePort,destinationPort,hasshType,protocolString,hassh,hasshAlgorithms,kexAlgs,encAlgs,macAlgs,cmpAlgs
 2018-09-07T02:34:50.854854,192.168.0.10,10.10.10.10,22,45918,server,"SSH-2.0-OpenSSH_7.2p2 Ubuntu-4ubuntu2.4",d43d91bc39d5aaed819ad9f6b57b7348,"curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha1;chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com;umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1;none,zlib@openssh.com","curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha1","chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com","umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1","none,zlib@openssh.com"
 2018-09-07T02:34:50.855180,10.10.10.10,192.168.0.10,45918,22,client,"SSH-2.0-libssh2_1.7.0",a7a87fbe86774c2e40cc4a7ea2ab1b3c,"diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1;aes128-ctr,aes192-ctr,aes256-ctr,aes256-cbc,rijndael-cbc@lysator.liu.se,aes192-cbc,aes128-cbc,blowfish-cbc,arcfour128,arcfour,cast128-cbc,3des-cbc;hmac-sha2-256,hmac-sha2-512,hmac-sha1,hmac-sha1-96,hmac-md5,hmac-md5-96,hmac-ripemd160,hmac-ripemd160@openssh.com;none","diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1","aes128-ctr,aes192-ctr,aes256-ctr,aes256-cbc,rijndael-cbc@lysator.liu.se,aes192-cbc,aes128-cbc,blowfish-cbc,arcfour128,arcfour,cast128-cbc,3des-cbc","hmac-sha2-256,hmac-sha2-512,hmac-sha1,hmac-sha1-96,hmac-md5,hmac-md5-96,hmac-ripemd160,hmac-ripemd160@openssh.com","none"
 ```
+
+## Docker
+
+A dockerized version of hassh.py can be used to extract HASSH fingerprints from input PCAP files and live network traffic.
+
+Build the docker image using Dockerfile:
+ ```
+    $ docker build -t docker:latest .
+ ```
+
+ * Reading from input PCAP files:
+
+You can mount your host ~/pcap dir to copy pcap files to the container and also keep the logs on your host:
+ ```
+    $ docker run -v ~/pcap:/tmp/ -it hassh:latest -d /tmp/ -l json -o /tmp/log.json
+ ```
+
+ * Live network traffic capture:
+ ```
+    $ docker run --net=host -it akarimishiraz/hassh -i any --print
+ ```
+
+Note: According to Docker's [docs](https://docs.docker.com/network/host/), the host networking driver only works on Linux hosts, and is not supported on Docker for Mac, Docker for Windows, or Docker EE for Windows Server.
