@@ -36,7 +36,7 @@ redef record SSH::Info += {
     #ceacts:  string   &log &optional; 
     #cmacts:  string   &log &optional;
     #ccacts:  string   &log &optional; 
-    #clcts:   string   &log &optional; # Currently the "Languages" information is not extracted by bro main
+    #clcts:   string   &log &optional;
     hasshAlgorithms:  string  &log &optional;
     
     # ===> Log Server variables <=== #
@@ -46,7 +46,7 @@ redef record SSH::Info += {
     #seastc:   string  &log &optional; 
     #smastc:   string  &log &optional; 
     #scastc:   string  &log &optional; 
-    #slstc:    string  &log &optional; # Currently the "Languages" information is not extracted by bro main
+    #slstc:    string  &log &optional;
     hasshServerAlgorithms:  string  &log &optional;
 };
 ```
