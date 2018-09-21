@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
-"""Generate Client and Server HASSH fingerprints from PCAPs and live
-network traffic using Python"""
+# Copyright (c) 2018, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license.
+# For full license text, see the LICENSE file in the repo root
+# or https://opensource.org/licenses/BSD-3-Clause
 
 import argparse
 import pyshark
@@ -11,13 +14,12 @@ import textwrap
 from hashlib import md5
 
 __author__ = "Adel '0x4D31' Karimi"
+__email__ = "akarimishiraz@salesforce.com"
+__version__ = "1.0"
 __copyright__ = "Copyright (c) 2018, salesforce.com, inc."
+__license__ = "BSD 3-Clause License"
 __credits__ = ["Ben Reardon", "Adel Karimi", "John B. Althouse",
                "Jeff Atkinson", "Josh Atkins"]
-__license__ = "BSD 3-Clause License"
-__version__ = "1.0"
-__maintainer__ = "Adel '0x4D31' Karimi"
-__email__ = "akarimishiraz@salesforce.com"
 
 HASSH_VERSION = '1.0'
 CAP_BPF_FILTER = 'tcp port 22 or tcp port 2222'
