@@ -9,7 +9,7 @@
 #               by enumerating the SSH_MSG_KEXINIT packets sent      #
 #               as clear text between the client and server as part  # 
 #               of the negotiation of an SSH connection.             #
-# NOTE:  bro currently ( <= v2.5.4) has a bug which reverses         #
+# NOTE:  bro currently ( <= v2.5.5) has a bug which reverses         #
 #        the Client/server flag, the logic in this script reverses   #
 #        this bug. Therefore once the bro bug is patched, the logic  #
 #        in this script also needs return to the proper form.        #
