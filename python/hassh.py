@@ -43,7 +43,7 @@ def process_pcap_file(pcap, fprint, da, oprint=False):
         for packet in cap:
             if not packet.highest_layer == 'SSH':
                 continue
-            # Extract SSH Protocol string and correlate with KEXINIT msg
+            # Extract SSH identification string and correlate with KEXINIT msg
             if 'protocol' in packet.ssh.field_names:
                 protocol = packet.ssh.protocol
                 srcip = packet.ip.src
@@ -72,7 +72,7 @@ def process_pcap_file(pcap, fprint, da, oprint=False):
                 tmp = textwrap.dedent("""\
                     [+] Client SSH_MSG_KEXINIT detected in '{pcap}'
                         {cl1}[ {sip}:{sport} -> {dip}:{dport} ]{cl1e}
-                            [-] Protocol String: {cl2}{proto}{cl2e}
+                            [-] Identification String: {cl2}{proto}{cl2e}
                             [-] Client HASSH: {cl2}{hassh}{cl2e}
                             [-] Client HASSH String: {cl3}{hasshv}{cl3e}""")
                 tmp = tmp.format(
@@ -102,7 +102,7 @@ def process_pcap_file(pcap, fprint, da, oprint=False):
                 tmp = textwrap.dedent("""\
                     [+] Server SSH_MSG_KEXINIT detected in '{pcap}'
                         {cl1}[ {sip}:{sport} -> {dip}:{dport} ]{cl1e}
-                            [-] Protocol String: {cl4}{proto}{cl4e}
+                            [-] Identification String: {cl4}{proto}{cl4e}
                             [-] Server HASSH: {cl4}{hasshs}{cl4e}
                             [-] Server HASSH String: {cl3}{hasshsv}{cl3e}""")
                 tmp = tmp.format(
@@ -139,7 +139,7 @@ def live_capture(iface, fprint, da, bpf, lf, wp, oprint=False):
         output_file=wp)
     # TODO: write pcap
     csv_header = ("timestamp,sourceIp,destinationIp,sourcePort,"
-                  "destinationPort,hasshType,protocolString,hassh,"
+                  "destinationPort,hasshType,identificationString,hassh,"
                   "hasshAlgorithms,kexAlgs,encAlgs,macAlgs,cmpAlgs")
     if lf == 'csv':
         logger.info(csv_header)
@@ -149,7 +149,7 @@ def live_capture(iface, fprint, da, bpf, lf, wp, oprint=False):
             #     protocol_dict.clear()
             if not packet.highest_layer == 'SSH':
                 continue
-            # Extract SSH Protocol string and correlate with KEXINIT msg
+            # Extract SSH identification string and correlate with KEXINIT msg
             if 'protocol' in packet.ssh.field_names:
                 protocol = packet.ssh.protocol
                 srcip = packet.ip.src
@@ -183,7 +183,7 @@ def live_capture(iface, fprint, da, bpf, lf, wp, oprint=False):
                 tmp = textwrap.dedent("""\
                     [+] Client SSH_MSG_KEXINIT detected
                         {cl1}[ {sip}:{sport} -> {dip}:{dport} ]{cl1e}
-                            [-] Protocol String: {cl2}{proto}{cl2e}
+                            [-] Identification String: {cl2}{proto}{cl2e}
                             [-] Client HASSH: {cl2}{hassh}{cl2e}
                             [-] Client HASSH String: {cl3}{hasshv}{cl3e}""")
                 tmp = tmp.format(
@@ -216,7 +216,7 @@ def live_capture(iface, fprint, da, bpf, lf, wp, oprint=False):
                 tmp = textwrap.dedent("""\
                     [+] Server SSH_MSG_KEXINIT detected
                         {cl1}[ {sip}:{sport} -> {dip}:{dport} ]{cl1e}
-                            [-] Protocol String: {cl4}{proto}{cl4e}
+                            [-] Identification String: {cl4}{proto}{cl4e}
                             [-] Server HASSH: {cl4}{hasshs}{cl4e}
                             [-] Server HASSH String: {cl3}{hasshsv}{cl3e}""")
                 tmp = tmp.format(
@@ -385,7 +385,7 @@ def csv_logging(record):
         cmpAlgs = record['ccacts']
         hassh = record['hassh']
         hasshAlgorithms = record['hasshAlgorithms']
-        protocolString = record['client']
+        identificationString = record['client']
     elif 'hasshServer' in record:
         hasshType = 'server'
         kexAlgs = record['skex']
@@ -394,11 +394,11 @@ def csv_logging(record):
         cmpAlgs = record['scastc']
         hassh = record['hasshServer']
         hasshAlgorithms = record['hasshServerAlgorithms']
-        protocolString = record['server']
+        identificationString = record['server']
     csv_record = csv_record.format(
         ts=record['timestamp'], si=record['sourceIp'],
         di=record['destinationIp'], sp=record['sourcePort'],
-        dp=record['destinationPort'], t=hasshType, p=protocolString,
+        dp=record['destinationPort'], t=hasshType, p=identificationString,
         h=hassh, hv=hasshAlgorithms, k=kexAlgs, e=encAlgs, m=macAlgs,
         c=cmpAlgs)
     return csv_record
@@ -466,7 +466,7 @@ def main():
     logger = logging.getLogger()
     output = None
     csv_header = ("timestamp,sourceIp,destinationIp,sourcePort,"
-                  "destinationPort,hasshType,protocolString,hassh,"
+                  "destinationPort,hasshType,identificationString,hassh,"
                   "hasshAlgorithms,kexAlgs,encAlgs,macAlgs,cmpAlgs")
     # Process PCAP file
     if args.read_file:
