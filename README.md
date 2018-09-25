@@ -70,7 +70,7 @@ Finally the hasshServer is simply the MD5 of hasshServerAlgorithms, some example
 
 ## References:
 - [RFC4253 The Secure Shell (SSH) Transport Layer Protocol](https://www.ietf.org/rfc/rfc4253.txt)
-- Salesforce Engineering blog TBA
+- [Salesforce Engineering blog](https://engineering.salesforce.com/open-sourcing-hassh-abed3ae5044c)
 
 ## Credits:
 hassh and hasshServer were conceived and developed by [Ben Reardon](mailto:breardon@salesforce.com) ([@benreardon](https://twitter.com/@benreardon)) within the Detection Cloud Team at Salesforce, with inspiration and contributions from [Adel Karimi](mailto:akarimishiraz@salesforce.com) (@0x4d31) and the [JA3 crew](https://github.com/salesforce/ja3/)  crew:[John B. Althouse](mailto:jalthouse@salesforce.com)  , [Jeff Atkinson](mailto:jatkinson@salesforce.com) and [Josh Atkins](mailto:j.atkins@salesforce.com)
