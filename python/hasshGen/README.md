@@ -54,7 +54,7 @@ optional arguments:
 ## Usage
  * Build and run a docker image with specific SSH client/version:
 ```
-$ ./hasshgen.py --docker_file Dockerfile.alpine --image alpine -iV 3.6 --sshclient openssh-client --sshclient_ver 7.5_p1-r2
+$ ./hasshgen.py --docker_file Dockerfile.alpine --image alpine -iV 3.6 --sshclient openssh-client --sshclient_ver 7.5_p1-r2 --server <your-ssh-server>
 
 [+] <Image: 'hasshgen:alpine0'> successfully built
     - image: alpine:3.6, ssh client: openssh-client 7.5_p1-r2
@@ -65,7 +65,7 @@ After building the docker image, the script runs a SSH command to generate SSH c
 
  * Build docker images using an input file in this format: [sshClient_list](sshClient_list)
 ```
-$ ./hasshgen.py -iF sshClient_list
+$ ./hasshgen.py --input_file sshClient_list --server <your-ssh-server>
 [+] <Image: 'hasshgen:alpine1'> successfully built
     - image: alpine:3.3, ssh client: openssh-client 7.2_p2-r3
 [+] Command successfully executed!
@@ -79,5 +79,5 @@ $ ./hasshgen.py -iF sshClient_list
 
  * You can use `-f` or `--fingerprint` arg to automatically run `hassh.py` for extracting the fingerprints. Use `--cmd` to change the default HASSH_COMMAND:
  ```
-$ ./hasshgen.py -iF sshClient_list --fingerprint --cmd 'python3 ../hassh.py -i eth0 -l json -o fingerprint.json'
+$ ./hasshgen.py --input_file sshClient_list --server <your-ssh-server> --fingerprint --cmd 'python3 ../hassh.py -i eth0 -l json -o fingerprint.json'
  ```
