@@ -132,12 +132,13 @@ def process_pcap_file(pcap, fprint, da, oprint=False):
 def live_capture(iface, fprint, da, bpf, lf, wp, oprint=False):
     logger = logging.getLogger()
     protocol_dict = {}
+    # TODO: Use a Ring Buffer (LiveRingCapture), when the issue is fixed:
+    # https://github.com/KimiNewt/pyshark/issues/299
     cap = pyshark.LiveCapture(
         interface=iface,
         decode_as=da,
         bpf_filter=bpf,
         output_file=wp)
-    # TODO: write pcap
     csv_header = ("timestamp,sourceIp,destinationIp,sourcePort,"
                   "destinationPort,hasshType,identificationString,"
                   "hassh,hasshVersion,hasshAlgorithms,kexAlgs,encAlgs,"
