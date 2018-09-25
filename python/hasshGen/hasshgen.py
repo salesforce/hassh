@@ -20,6 +20,8 @@ __license__ = "BSD 3-Clause License"
 
 # Default command for running hassh.py
 HASSH_COMMAND = 'python3 ../hassh.py -i en1 -l json -o fingerprint.json'
+# Dockerfiles directory
+DOCKERFILE_DIR = 'dockerfiles'
 
 
 def parse_cmd_args():
@@ -37,9 +39,9 @@ def parse_cmd_args():
     parser.add_argument('-cV', '--sshclient_ver', type=str, help=helptxt)
     helptxt = 'Specify the Dockerfile'
     parser.add_argument('-d', '--docker_file', type=str, help=helptxt)
-    helptxt = 'Server address to test the SSH connection. Default: github.com'
+    helptxt = 'Specify the server address to test the SSH connection'
     parser.add_argument(
-        '-s', '--server', default="github.com", type=str, help=helptxt)
+        '-s', '--server', type=str, required=True, help=helptxt)
     helptxt = 'Bulk mode; Specify an input file containing a list of docker\
      image, image version, sshclient and sshclient version'
     parser.add_argument('-iF', '--input_file', type=str, help=helptxt)
@@ -105,11 +107,13 @@ def main():
         for record in input_list:
             # Find the Dockerfile
             if record['image'] in ('debian', 'ubuntu'):
-                docker_file = "Dockerfile.debian"
+                docker_file = "{}/Dockerfile.debian".format(DOCKERFILE_DIR)
             elif record['image'] in ('centos', 'fedora'):
-                docker_file = "Dockerfile.centos"
+                docker_file = "{}/Dockerfile.centos".format(DOCKERFILE_DIR)
             else:
-                docker_file = "Dockerfile.{}".format(record['image'])
+                docker_file = "{}/Dockerfile.{}".format(
+                    DOCKERFILE_DIR,
+                    record['image'])
             # Build the docker images
             tag_id += 1
             container = tag_name.format(img=record['image'], id=tag_id)
