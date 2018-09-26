@@ -85,9 +85,7 @@ redef record SSH::Info += {
 
 After ammending the bro script, don't forget to reload bro. 
 ```bash
-broctl stop
-broctl install
-broctl start
+broctl deploy
 ```
 
 ## Credits:
