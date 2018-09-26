@@ -7,7 +7,7 @@ HASSH is a method for creating SSH Client and Server fingerprints. This python s
 You can use [hasshGen.py](hasshGen/) to automate building docker images with different SSH clients/versions for generating HASSH fingerprints. As a demonstration we created a list ([sshClient_list](hasshGen/sshClient_list)) containing 49 different version of OpenSSH, Python’s paramiko and Dropbear SSH clients and generated a database of HASSH fingerprints in [JSON](hasshGen/hassh_fingerprints.json) and [CSV](hasshGen/hassh_fingerprints.csv) formats.
 
 ## Getting Started
-1. Install tshark:
+1. Install Tshark. E.g. on Debian/Ubuntu:
     > `apt-get install tshark`
 
 2. Install Pipenv:
@@ -17,14 +17,25 @@ You can use [hasshGen.py](hasshGen/) to automate building docker images with dif
     > `pipenv install`
 
 4. Test:
-    > `pipenv run ./hassh.py -h`
+
+To activate the virtualenv, run pipenv shell:
+```
+$ pipenv shell
+(python-ZnElGiuE) bash-3.2$ python3 hassh.py -h
+```
+
+Alternatively, run a command inside the virtualenv with pipenv run:
+
+```
+$ pipenv run python3 hassh.py -h
+```
 
 Output:
 
 ```
 usage: hassh.py [-h] [-r READ_FILE] [-d READ_DIRECTORY] [-i INTERFACE]
-                [-fp {client,server}] [-da DECODE_AS]
-                [-f BPF_FILTER] [-l {json,csv}] [-o OUTPUT_FILE] [-p]
+                [-fp {client,server}] [-da DECODE_AS] [-f BPF_FILTER]
+                [-l {json,csv}] [-o OUTPUT_FILE] [-w WRITE_PCAP] [-p]
 
 A python script for extracting HASSH fingerprints
 
@@ -36,7 +47,7 @@ optional arguments:
                         directory of pcap files to process
   -i INTERFACE, --interface INTERFACE
                         listen on interface
-  -fp {client,server}, --fingerprint {client_hassh,server_hassh}
+  -fp {client,server}, --fingerprint {client,server}
                         client or server fingerprint. Default: all
   -da DECODE_AS, --decode_as DECODE_AS
                         a dictionary of {decode_criterion_string:
@@ -49,13 +60,16 @@ optional arguments:
   -l {json,csv}, --log_format {json,csv}
                         specify the output log format (json/csv)
   -o OUTPUT_FILE, --output_file OUTPUT_FILE
-  -p, --print           print the output
+                        specify the output log file. Default: hassh.log
+  -w WRITE_PCAP, --write_pcap WRITE_PCAP
+                        save the live captured packets to this file
+  -p, --print_output    print the output
 ```
 
 ## Usage
  * Live network traffic capture:
  ```
-    $ ./hassh.py -i eth0 -l json -o hassh.json --print
+    $ python3 hassh.py -i eth0 -l json -o hassh.json --print
  ```
 
 Output:
@@ -109,7 +123,7 @@ JSON Output:
   * Reading from an input PCAP file (```-r pcapfile.pcap```) or a directory of PCAP files (```-d pcap_dir/```):
 
  ```
-    $ ./hassh.py -r traffic.pcap -l csv -o hassh.csv --print
+    $ python3 hassh.py -r traffic.pcap -l csv -o hassh.csv --print
  ```
 
 CSV Output:
