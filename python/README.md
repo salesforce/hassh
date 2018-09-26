@@ -139,7 +139,7 @@ A dockerized version of hassh.py can be used to extract HASSH fingerprints from 
 
 Build the docker image using Dockerfile:
  ```
-    $ docker build -t docker:latest .
+    $ docker build -t hassh:latest .
  ```
 
  * Reading from input PCAP files:
@@ -151,7 +151,7 @@ You can mount your host ~/pcap dir to copy pcap files to the container and also 
 
  * Live network traffic capture:
  ```
-    $ docker run --net=host -it akarimishiraz/hassh -i any --print
+    $ docker run --net=host -it hassh:latest -i any --print
  ```
 
 Note: According to Docker's [docs](https://docs.docker.com/network/host/), the host networking driver only works on Linux hosts, and is not supported on Docker for Mac, Docker for Windows, or Docker EE for Windows Server.
