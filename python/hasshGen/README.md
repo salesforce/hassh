@@ -13,13 +13,13 @@ As a demonstration we created a list ([sshClient_list](sshClient_list)) containi
     > `pipenv install docker`
 
 4. Test:
-    > `$ pipenv run ./hasshgen.py -h`
+    > `pipenv run python3 hasshgen.py -h`
 
 Output:
 
 ```
 usage: hasshgen.py [-h] [-i IMAGE] [-iV IMAGE_VER] [-c SSHCLIENT]
-                   [-cV SSHCLIENT_VER] [-d DOCKER_FILE] [-s SERVER]
+                   [-cV SSHCLIENT_VER] [-d DOCKER_FILE] -s SERVER
                    [-iF INPUT_FILE] [-f] [--cmd CMD]
 
 A python script to automate building docker images with different SSH
@@ -38,8 +38,7 @@ optional arguments:
   -d DOCKER_FILE, --docker_file DOCKER_FILE
                         Specify the Dockerfile
   -s SERVER, --server SERVER
-                        Server address to test the SSH connection. Default:
-                        github.com
+                        Specify the server address to test the SSH connection
   -iF INPUT_FILE, --input_file INPUT_FILE
                         Bulk mode; Specify an input file containing a list of
                         docker image, image version, sshclient and sshclient
@@ -54,7 +53,7 @@ optional arguments:
 ## Usage
  * Build and run a docker image with specific SSH client/version:
 ```
-$ ./hasshgen.py --docker_file Dockerfile.alpine --image alpine -iV 3.6 --sshclient openssh-client --sshclient_ver 7.5_p1-r2 --server <your-ssh-server>
+$ python3 hasshgen.py --docker_file Dockerfile.alpine --image alpine -iV 3.6 --sshclient openssh-client --sshclient_ver 7.5_p1-r2 --server <your-ssh-server>
 
 [+] <Image: 'hasshgen:alpine0'> successfully built
     - image: alpine:3.6, ssh client: openssh-client 7.5_p1-r2
@@ -65,7 +64,7 @@ After building the docker image, the script runs a SSH command to generate SSH c
 
  * Build docker images using an input file in this format: [sshClient_list](sshClient_list)
 ```
-$ ./hasshgen.py --input_file sshClient_list --server <your-ssh-server>
+$ python3 hasshgen.py --input_file sshClient_list --server <your-ssh-server>
 [+] <Image: 'hasshgen:alpine1'> successfully built
     - image: alpine:3.3, ssh client: openssh-client 7.2_p2-r3
 [+] Command successfully executed!
@@ -79,5 +78,5 @@ $ ./hasshgen.py --input_file sshClient_list --server <your-ssh-server>
 
  * You can use `-f` or `--fingerprint` arg to automatically run `hassh.py` for extracting the fingerprints. Use `--cmd` to change the default HASSH_COMMAND:
  ```
-$ ./hasshgen.py --input_file sshClient_list --server <your-ssh-server> --fingerprint --cmd 'python3 ../hassh.py -i eth0 -l json -o fingerprint.json'
+$ python3 hasshgen.py --input_file sshClient_list --server <your-ssh-server> --fingerprint --cmd 'python3 ../hassh.py -i eth0 -l json -o fingerprint.json'
  ```
