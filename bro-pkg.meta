@@ -1,0 +1,5 @@
+[package]
+script_dir = bro
+description = HASSH is used to identify specific Client and Server SSH implementations. The fingerprints can be stored, searched and shared in the form of an MD5 fingerprint. This package logs components to ssh.log
+tags = bro plugin, ssh, fingerprint, logging
+version = 1.0
