@@ -17,7 +17,7 @@ Place hassh.bro in bro/share/bro/site/hassh and add this line to your local.bro 
 ```
 If running Bro >=2.5 or a Bro product like Corelight, install by using the Bro Package Manager with this command:
 ```bash 
-# bro-pkg install hassh << TODO - this bro-pkg package is NOT live yet
+bro-pkg install hassh
 ```
 
 
