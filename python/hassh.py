@@ -15,7 +15,7 @@ from hashlib import md5
 
 __author__ = "Adel '0x4D31' Karimi"
 __email__ = "akarimishiraz@salesforce.com"
-__version__ = "1.0"
+__version__ = "1.1"
 __copyright__ = "Copyright (c) 2018, salesforce.com, inc."
 __license__ = "BSD 3-Clause License"
 __credits__ = ["Ben Reardon", "Adel Karimi", "John B. Althouse",
@@ -24,6 +24,8 @@ __credits__ = ["Ben Reardon", "Adel Karimi", "John B. Althouse",
 HASSH_VERSION = '1.0'
 CAP_BPF_FILTER = 'tcp port 22 or tcp port 2222'
 DECODE_AS = {'tcp.port==2222': 'ssh'}
+
+protocol_dict = {}
 
 
 class color:
@@ -34,213 +36,101 @@ class color:
     END = '\033[0m'
 
 
-def process_pcap_file(pcap, fprint, da, oprint=False):
-    """process provided pcap files"""
-    results = list()
-    protocol_dict = {}
-    cap = pyshark.FileCapture(pcap, decode_as=da)
-    try:
-        for packet in cap:
-            if not packet.highest_layer == 'SSH':
-                continue
-            # Extract SSH identification string and correlate with KEXINIT msg
-            if 'protocol' in packet.ssh.field_names:
-                protocol = packet.ssh.protocol
-                srcip = packet.ip.src
-                dstip = packet.ip.dst
-                sport = packet.tcp.srcport
-                dport = packet.tcp.srcport
-                key = '{}:{}_{}:{}'.format(srcip, sport, dstip, dport)
-                protocol_dict[key] = protocol
-            if 'message_code' not in packet.ssh.field_names:
-                continue
-            if packet.ssh.message_code != '20':
-                continue
-            if ("analysis_retransmission" in packet.tcp.field_names or
-               "analysis_spurious_retransmission" in packet.tcp.field_names):
-                event = event_log(packet, event="retransmission")
-                results.append(event)
-                continue
-            # HASSH
-            if ((fprint == 'client' or fprint == 'all')
-                    and int(packet.tcp.srcport) > int(packet.tcp.dstport)):
-                record = client_hassh(packet, protocol_dict)
-                results.append(record)
-                # Print the result
-                if not oprint:
-                    continue
-                tmp = textwrap.dedent("""\
-                    [+] Client SSH_MSG_KEXINIT detected in '{pcap}'
-                        {cl1}[ {sip}:{sport} -> {dip}:{dport} ]{cl1e}
-                            [-] Identification String: {cl2}{proto}{cl2e}
-                            [-] hassh: {cl2}{hassh}{cl2e}
-                            [-] hassh Algorithms: {cl3}{hasshv}{cl3e}""")
-                tmp = tmp.format(
-                    pcap=pcap,
-                    cl1=color.CL1,
-                    sip=record['sourceIp'],
-                    sport=record['sourcePort'],
-                    dip=record['destinationIp'],
-                    dport=record['destinationPort'],
-                    cl1e=color.END,
-                    cl2=color.CL2,
-                    hassh=record['hassh'],
-                    cl2e=color.END,
-                    cl3=color.CL3,
-                    hasshv=record['hasshAlgorithms'],
-                    cl3e=color.END,
-                    proto=record['client'])
-                print(tmp)
-            # Server HASSHs
-            elif ((fprint == 'server' or fprint == 'all')
-                    and int(packet.tcp.srcport) < int(packet.tcp.dstport)):
-                record = server_hassh(packet, protocol_dict)
-                results.append(record)
-                # Print the result
-                if not oprint:
-                    continue
-                tmp = textwrap.dedent("""\
-                    [+] Server SSH_MSG_KEXINIT detected in '{pcap}'
-                        {cl1}[ {sip}:{sport} -> {dip}:{dport} ]{cl1e}
-                            [-] Identification String: {cl4}{proto}{cl4e}
-                            [-] hasshServer: {cl4}{hasshs}{cl4e}
-                            [-] hasshServer Algorithms: {cl3}{hasshsv}{cl3e}""")
-                tmp = tmp.format(
-                    pcap=pcap,
-                    cl1=color.CL1,
-                    sip=record['sourceIp'],
-                    sport=record['sourcePort'],
-                    dip=record['destinationIp'],
-                    dport=record['destinationPort'],
-                    cl1e=color.END,
-                    cl4=color.CL4,
-                    hasshs=record['hasshServer'],
-                    cl4e=color.END,
-                    cl3=color.CL3,
-                    hasshsv=record['hasshServerAlgorithms'],
-                    cl3e=color.END,
-                    proto=record['server'])
-                print(tmp)
-        cap.close()
-        cap.eventloop.stop()
-    except Exception as e:
-        print('Error: {}'.format(e))
-        pass
-    return results
-
-
-def live_capture(iface, fprint, da, bpf, lf, wp, oprint=False):
+def process_packet(packet, logf, fingerprint, pout):
     logger = logging.getLogger()
-    protocol_dict = {}
-    # TODO: Use a Ring Buffer (LiveRingCapture), when the issue is fixed:
-    # https://github.com/KimiNewt/pyshark/issues/299
-    cap = pyshark.LiveCapture(
-        interface=iface,
-        decode_as=da,
-        bpf_filter=bpf,
-        output_file=wp)
-    csv_header = ("timestamp,sourceIp,destinationIp,sourcePort,"
-                  "destinationPort,hasshType,identificationString,"
-                  "hassh,hasshVersion,hasshAlgorithms,kexAlgs,encAlgs,"
-                  "macAlgs,cmpAlgs")
-    if lf == 'csv':
-        logger.info(csv_header)
-    try:
-        for packet in cap.sniff_continuously(packet_count=0):
-            # if len(protocol_dict) > 10000:
-            #     protocol_dict.clear()
-            if not packet.highest_layer == 'SSH':
-                continue
-            # Extract SSH identification string and correlate with KEXINIT msg
-            if 'protocol' in packet.ssh.field_names:
-                protocol = packet.ssh.protocol
-                srcip = packet.ip.src
-                dstip = packet.ip.dst
-                sport = packet.tcp.srcport
-                dport = packet.tcp.srcport
-                key = '{}:{}_{}:{}'.format(srcip, sport, dstip, dport)
-                protocol_dict[key] = protocol
-            if 'message_code' not in packet.ssh.field_names:
-                continue
-            if packet.ssh.message_code != '20':
-                continue
-            if ("analysis_retransmission" in packet.tcp.field_names or
-               "analysis_spurious_retransmission" in packet.tcp.field_names):
-                event = event_log(packet, event="retransmission")
-                if lf == 'json':
-                    logger.info(json.dumps(event))
-                continue
-            # Client HASSH
-            if ((fprint == 'client' or fprint == 'all')
-                    and int(packet.tcp.srcport) > int(packet.tcp.dstport)):
-                record = client_hassh(packet, protocol_dict)
-                if lf == 'json':
-                    logger.info(json.dumps(record))
-                elif lf == 'csv':
-                    csv_record = csv_logging(record)
-                    logger.info(csv_record)
-                if not oprint:
-                    continue
-                # Print the result
-                tmp = textwrap.dedent("""\
-                    [+] Client SSH_MSG_KEXINIT detected
-                        {cl1}[ {sip}:{sport} -> {dip}:{dport} ]{cl1e}
-                            [-] Identification String: {cl2}{proto}{cl2e}
-                            [-] hassh: {cl2}{hassh}{cl2e}
-                            [-] hassh Algorithms: {cl3}{hasshv}{cl3e}""")
-                tmp = tmp.format(
-                    cl1=color.CL1,
-                    sip=record['sourceIp'],
-                    sport=record['sourcePort'],
-                    dip=record['destinationIp'],
-                    dport=record['destinationPort'],
-                    cl1e=color.END,
-                    cl2=color.CL2,
-                    hassh=record['hassh'],
-                    cl2e=color.END,
-                    cl3=color.CL3,
-                    hasshv=record['hasshAlgorithms'],
-                    cl3e=color.END,
-                    proto=record['client'])
-                print(tmp)
-            # Server HASSHs
-            elif ((fprint == 'server' or fprint == 'all')
-                  and int(packet.tcp.srcport) < int(packet.tcp.dstport)):
-                record = server_hassh(packet, protocol_dict)
-                if lf == 'json':
-                    logger.info(json.dumps(record))
-                elif lf == 'csv':
-                    csv_record = csv_logging(record)
-                    logger.info(csv_record)
-                if not oprint:
-                    continue
-                # Print the result
-                tmp = textwrap.dedent("""\
-                    [+] Server SSH_MSG_KEXINIT detected
-                        {cl1}[ {sip}:{sport} -> {dip}:{dport} ]{cl1e}
-                            [-] Identification String: {cl4}{proto}{cl4e}
-                            [-] hasshServer: {cl4}{hasshs}{cl4e}
-                            [-] hasshServer Algorithms: {cl3}{hasshsv}{cl3e}""")
-                tmp = tmp.format(
-                    cl1=color.CL1,
-                    sip=record['sourceIp'],
-                    sport=record['sourcePort'],
-                    dip=record['destinationIp'],
-                    dport=record['destinationPort'],
-                    cl1e=color.END,
-                    cl4=color.CL4,
-                    hasshs=record['hasshServer'],
-                    cl4e=color.END,
-                    cl3=color.CL3,
-                    hasshsv=record['hasshServerAlgorithms'],
-                    cl3e=color.END,
-                    proto=record['server'])
-                print(tmp)
-    except (KeyboardInterrupt, SystemExit):
-        print("Exiting..\nBYE o/\n")
+    global protocol_dict
+
+    if not packet.highest_layer == 'SSH':
+        return
+    # Extract SSH identification string and correlate with KEXINIT msg
+    if 'protocol' in packet.ssh.field_names:
+        protocol = packet.ssh.protocol
+        srcip = packet.ip.src
+        dstip = packet.ip.dst
+        sport = packet.tcp.srcport
+        dport = packet.tcp.srcport
+        key = '{}:{}_{}:{}'.format(srcip, sport, dstip, dport)
+        protocol_dict[key] = protocol
+    if 'message_code' not in packet.ssh.field_names:
+        return
+    if packet.ssh.message_code != '20':
+        return
+    if ("analysis_retransmission" in packet.tcp.field_names or
+       "analysis_spurious_retransmission" in packet.tcp.field_names):
+        event = event_log(packet, event="retransmission")
+        if logf == 'json':
+            logger.info(json.dumps(event))
+        return
+    # Client HASSH
+    if ((fingerprint == 'client' or fingerprint == 'all')
+            and int(packet.tcp.srcport) > int(packet.tcp.dstport)):
+        record = client_hassh(packet)
+        if logf == 'json':
+            logger.info(json.dumps(record))
+        elif logf == 'csv':
+            csv_record = csv_logging(record)
+            logger.info(csv_record)
+        # Print the result
+        if not pout:
+            return
+        tmp = textwrap.dedent("""\
+            [+] Client SSH_MSG_KEXINIT detected
+                {cl1}[ {sip}:{sport} -> {dip}:{dport} ]{cl1e}
+                    [-] Identification String: {cl2}{proto}{cl2e}
+                    [-] hassh: {cl2}{hassh}{cl2e}
+                    [-] hassh Algorithms: {cl3}{hasshv}{cl3e}""")
+        tmp = tmp.format(
+            cl1=color.CL1,
+            sip=record['sourceIp'],
+            sport=record['sourcePort'],
+            dip=record['destinationIp'],
+            dport=record['destinationPort'],
+            cl1e=color.END,
+            cl2=color.CL2,
+            hassh=record['hassh'],
+            cl2e=color.END,
+            cl3=color.CL3,
+            hasshv=record['hasshAlgorithms'],
+            cl3e=color.END,
+            proto=record['client'])
+        print(tmp)
+    # Server HASSH
+    elif ((fingerprint == 'server' or fingerprint == 'all')
+            and int(packet.tcp.srcport) < int(packet.tcp.dstport)):
+        record = server_hassh(packet)
+        if logf == 'json':
+            logger.info(json.dumps(record))
+        elif logf == 'csv':
+            csv_record = csv_logging(record)
+            logger.info(csv_record)
+        # Print the result
+        if not pout:
+            return
+        tmp = textwrap.dedent("""\
+            [+] Server SSH_MSG_KEXINIT detected
+                {cl1}[ {sip}:{sport} -> {dip}:{dport} ]{cl1e}
+                    [-] Identification String: {cl4}{proto}{cl4e}
+                    [-] hasshServer: {cl4}{hasshs}{cl4e}
+                    [-] hasshServer Algorithms: {cl3}{hasshsv}{cl3e}""")
+        tmp = tmp.format(
+            cl1=color.CL1,
+            sip=record['sourceIp'],
+            sport=record['sourcePort'],
+            dip=record['destinationIp'],
+            dport=record['destinationPort'],
+            cl1e=color.END,
+            cl4=color.CL4,
+            hasshs=record['hasshServer'],
+            cl4e=color.END,
+            cl3=color.CL3,
+            hasshsv=record['hasshServerAlgorithms'],
+            cl3e=color.END,
+            proto=record['server'])
+        print(tmp)
 
 
 def event_log(packet, event):
+    """log the anomalous packets"""
     if event == "retransmission":
         event_message = "This packet is a (suspected) retransmission"
     # Report the event (only for JSON output)
@@ -254,7 +144,7 @@ def event_log(packet, event):
     return msg
 
 
-def client_hassh(packet, pdict):
+def client_hassh(packet):
     """returns HASSH (i.e. SSH Client Fingerprint)
     HASSH = md5(KEX;EACTS;MACTS;CACTS)
     """
@@ -264,8 +154,8 @@ def client_hassh(packet, pdict):
     dport = packet.tcp.srcport
     protocol = None
     key = '{}:{}_{}:{}'.format(srcip, sport, dstip, dport)
-    if key in pdict:
-        protocol = pdict[key]
+    if key in protocol_dict:
+        protocol = protocol_dict[key]
     # hassh fields
     ckex = ceacts = cmacts = ccacts = ""
     if 'kex_algorithms' in packet.ssh.field_names:
@@ -315,7 +205,7 @@ def client_hassh(packet, pdict):
     return record
 
 
-def server_hassh(packet, pdict):
+def server_hassh(packet):
     """returns HASSHServer (i.e. SSH Server Fingerprint)
     HASSHServer = md5(KEX;EASTC;MASTC;CASTC)
     """
@@ -325,8 +215,8 @@ def server_hassh(packet, pdict):
     dport = packet.tcp.srcport
     protocol = None
     key = '{}:{}_{}:{}'.format(srcip, sport, dstip, dport)
-    if key in pdict:
-        protocol = pdict[key]
+    if key in protocol_dict:
+        protocol = protocol_dict[key]
     # hasshServer fields
     skex = seastc = smastc = scastc = ""
     if 'kex_algorithms' in packet.ssh.field_names:
@@ -377,6 +267,7 @@ def server_hassh(packet, pdict):
 
 
 def csv_logging(record):
+    """generate output in csv format"""
     csv_record = ('{ts},{si},{di},{sp},{dp},{t},"{p}",{h},{v},"{ha}",'
                   '"{k}","{e}","{m}","{c}"')
     if 'hassh' in record:
@@ -451,7 +342,7 @@ def parse_cmd_args():
 
 
 def setup_logging(logfile):
-    """Setup logging"""
+    """setup logging"""
     logger = logging.getLogger()
     handler = logging.FileHandler(logfile)
     formatter = logging.Formatter('%(message)s')
@@ -462,52 +353,75 @@ def setup_logging(logfile):
 
 
 def main():
-    """Intake arguments from the user and extract HASSH fingerprints."""
+    """intake arguments from the user and extract HASSH fingerprints."""
     args = parse_cmd_args()
     setup_logging(args.output_file)
     logger = logging.getLogger()
-    output = None
+
     csv_header = ("timestamp,sourceIp,destinationIp,sourcePort,"
                   "destinationPort,hasshType,identificationString,"
                   "hassh,hasshVersion,hasshAlgorithms,kexAlgs,encAlgs,"
                   "macAlgs,cmpAlgs")
+    if args.log_format == 'csv':
+        logger.info(csv_header)
+
     # Process PCAP file
     if args.read_file:
-        output = process_pcap_file(args.read_file, args.fingerprint,
-                                   args.decode_as, args.print_output)
-        # Write output to the log file
-        if args.log_format == 'json':
-            for record in output:
-                logger.info(json.dumps(record))
-        elif args.log_format == 'csv':
-            logger.info(csv_header)
-            for record in output:
-                csv_record = csv_logging(record)
-                logger.info(csv_record)
+        cap = pyshark.FileCapture(args.read_file, decode_as=args.decode_as)
+        try:
+            for packet in cap:
+                process_packet(
+                    packet,
+                    logf=args.log_format,
+                    fingerprint=args.fingerprint,
+                    pout=args.print_output)
+            cap.close()
+            cap.eventloop.stop()
+        except Exception as e:
+            print('Error: {}'.format(e))
+            pass
+
     # Process directory of PCAP files
     elif args.read_directory:
         files = [f.path for f in os.scandir(args.read_directory)
                  if not f.name.startswith('.') and not f.is_dir()
                  and (f.name.endswith(".pcap") or f.name.endswith(".pcapng")
                  or f.name.endswith(".cap"))]
-        if args.log_format == 'csv':
-            logger.info(csv_header)
         for file in files:
-            output = process_pcap_file(file, args.fingerprint,
-                                       args.decode_as, args.print_output)
-            # Write output to the log file
-            if args.log_format == 'json':
-                for record in output:
-                    logger.info(json.dumps(record))
-            elif args.log_format == 'csv':
-                for record in output:
-                    csv_record = csv_logging(record)
-                    logger.info(csv_record)
+            cap = pyshark.FileCapture(file, decode_as=args.decode_as)
+            try:
+                for packet in cap:
+                    process_packet(
+                        packet,
+                        logf=args.log_format,
+                        fingerprint=args.fingerprint,
+                        pout=args.print_output)
+                cap.close()
+                cap.eventloop.stop()
+            except Exception as e:
+                print('Error: {}'.format(e))
+                pass
+
     # Capture live network traffic
     elif args.interface:
-        live_capture(args.interface, args.fingerprint, args.decode_as,
-                     args.bpf_filter, args.log_format, args.write_pcap,
-                     args.print_output)
+        # TODO: Use a Ring Buffer (LiveRingCapture), when the issue is fixed:
+        # https://github.com/KimiNewt/pyshark/issues/299
+        cap = pyshark.LiveCapture(
+            interface=args.interface,
+            decode_as=args.decode_as,
+            bpf_filter=args.bpf_filter,
+            output_file=args.write_pcap)
+        try:
+            for packet in cap.sniff_continuously(packet_count=0):
+                # if len(protocol_dict) > 10000:
+                # protocol_dict.clear()
+                process_packet(
+                    packet,
+                    logf=args.log_format,
+                    fingerprint=args.fingerprint,
+                    pout=args.print_output)
+        except (KeyboardInterrupt, SystemExit):
+            print("Exiting..\nBYE o/\n")
 
 
 if __name__ == '__main__':
