@@ -7,8 +7,9 @@ HASSH is a method for creating SSH Client and Server fingerprints. This python s
 You can use [hasshGen.py](hasshGen/) to automate building docker images with different SSH clients/versions for generating HASSH fingerprints. As a demonstration we created a list ([sshClient_list](hasshGen/sshClient_list)) containing 49 different version of OpenSSH, Python’s paramiko and Dropbear SSH clients and generated a database of HASSH fingerprints in [JSON](hasshGen/hassh_fingerprints.json) and [CSV](hasshGen/hassh_fingerprints.csv) formats.
 
 ## Getting Started
-1. Install Tshark. E.g. on Debian/Ubuntu:
-    > `apt-get install tshark`
+1. Install Tshark. 
+    > `apt-get install tshark` on Debian/Ubuntu or `yum install wireshark` on Centos 7
+    
 
 2. Install Pipenv:
     > `pip3 install pipenv`
