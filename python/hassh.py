@@ -167,7 +167,7 @@ def client_hassh(packet):
     if 'compression_algorithms_client_to_server' in packet.ssh.field_names:
         ccacts = packet.ssh.compression_algorithms_client_to_server
     # Log other kexinit fields (only in JSON)
-    clcts = clstc = ceastc = cmastc = ccastc = ""
+    clcts = clstc = ceastc = cmastc = ccastc = cshka = ""
     if 'languages_client_to_server' in packet.ssh.field_names:
         clcts = packet.ssh.languages_client_to_server
     if 'languages_server_to_client' in packet.ssh.field_names:
@@ -228,7 +228,7 @@ def server_hassh(packet):
     if 'compression_algorithms_server_to_client' in packet.ssh.field_names:
         scastc = packet.ssh.compression_algorithms_server_to_client
     # Log other kexinit fields (only in JSON)
-    slcts = slstc = seacts = smacts = scacts = ""
+    slcts = slstc = seacts = smacts = scacts = sshka = ""
     if 'languages_client_to_server' in packet.ssh.field_names:
         slcts = packet.ssh.languages_client_to_server
     if 'languages_server_to_client' in packet.ssh.field_names:
