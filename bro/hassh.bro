@@ -1,7 +1,7 @@
 #                               HASSH                                #
 #             SSH Key Initiation Exchange Fingerprinting             #
 #                                                                    #
-# Script Version: v1.0                                               #
+# Script Version: v1.5 22 August 2019                                #
 # Authors: Ben Reardon (breardon@salesforce.com, @benreardon)        #
 #        : Jeff Atkinson (jatkinson@salesforce.com)                  #
 #        : John Althouse (jalthouse@salesforce.com)                  #
@@ -9,10 +9,6 @@
 #               by enumerating the SSH_MSG_KEXINIT packets sent      #
 #               as clear text between the client and server as part  # 
 #               of the negotiation of an SSH connection.             #
-# NOTE:  bro currently ( <= v2.5.5) has a bug which reverses         #
-#        the Client/server flag, the logic in this script reverses   #
-#        this bug. Therefore once the bro bug is patched, the logic  #
-#        in this script also needs return to the proper form.        #
 #                                                                    #
 # Copyright (c) 2018, salesforce.com, inc.                           #
 # All rights reserved.                                               #
@@ -25,7 +21,7 @@ module SSH;
 
 export {
     type HASSHStorage: record {
-        hasshVersion:string &log &default="1.0"; # ANY change in hassh/hasshServer composition requires Version update 
+        hasshVersion:string &log &default="1.1"; # ANY change in hassh/hasshServer composition requires Version update 
         hassh:   string   &log &optional &default="";
         hasshServer:   string  &log &optional &default="";
         
@@ -111,11 +107,11 @@ event ssh_capabilities(c: connection, cookie: string, capabilities: SSH::Capabil
     if ( !c?$ssh ) {return;}
     c$hassh = HASSHStorage();
     
-    # bro currently has a bug which it reverses the Client/server flag.
-    # The following "if" statements reverses this bug. Once the bro bug is patched, 
-    # this logic must return to the proper form. 
+    # Prior to 2.6.0 bro has a bug which it reverses the Client/server flag.
+    # See https://github.com/zeek/zeek/pull/191
+    # The "if" statements here do a version check to account for this bug in versions older than 2.6.0
     
-    if ( capabilities$is_server == T ) {
+    if ((Version::info$version_number < 20600 && capabilities$is_server == T) || (Version::info$version_number >= 20600 && capabilities$is_server == F) ) {
         get_hassh(c, capabilities);
         c$ssh$hasshVersion = c$hassh$hasshVersion;
         c$ssh$hassh  = c$hassh$hassh;
@@ -130,7 +126,7 @@ event ssh_capabilities(c: connection, cookie: string, capabilities: SSH::Capabil
         #c$ssh$clcts  = c$hassh$clcts;
         c$ssh$hasshAlgorithms = c$hassh$hasshAlgorithms;
     }
-    if ( capabilities$is_server == F ) {
+    if ( (Version::info$version_number < 20600 && capabilities$is_server == F) || (Version::info$version_number >= 20600 && capabilities$is_server == T) ) {
         get_hasshServer(c, capabilities);
         c$ssh$hasshVersion = c$hassh$hasshVersion;
         c$ssh$hasshServer = c$hassh$hasshServer;
