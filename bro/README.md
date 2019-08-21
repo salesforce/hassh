@@ -7,8 +7,8 @@
 - hassh, hasshAlgorithms 
 - hasshServer, hasshServerAlgorithms
 - cshka (Client Host Key Algorithms), sshka (Server Host Key Algorithms)  
-- The script has been tested on Bro 2.4.1, 2.5, 2.5.1 and 2.5.5. 
-- Note that bro currently ( <= v2.5.5) has a bug which reverses the Client/server flag, however the logic in this script reverses and in effect corrects this bug. Therefore once the bro bug is patched, the logic in this script also needs return to the proper form. Failure to update bro and not the script will result in the Server and Client packets being processed incorrectly, in effect swapping around hassh with hassServer.  
+- The script has been tested on Bro 2.5, 2.5.1, 2.5.5, 2.6.0, 2.6.1 and 2.6.3 
+- Note that bro versions < v2.6.0 had a bug which reversed the Client/server flag , see https://github.com/zeek/zeek/pull/191. The current version of the hassh.bro script does version checking to deal with these version issues. Failure to update bro and not the hassh.bro script will result in the Server and Client packets being processed incorrectly, in effect swapping around hassh with hassServer.  
 
 ## Installation
 Place hassh.bro in bro/share/bro/site/hassh and add this line to your local.bro script:
