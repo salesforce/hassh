@@ -1,0 +1,1 @@
+@load ./hassh.zeek

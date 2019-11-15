@@ -5,7 +5,7 @@
 # Authors: Ben Reardon (breardon@salesforce.com, @benreardon)        #
 #        : Jeff Atkinson (jatkinson@salesforce.com)                  #
 #        : John Althouse (jalthouse@salesforce.com)                  #
-# Description:  This bro script appends hassh data to ssh.log        #
+# Description:  This Zeek script appends hassh data to ssh.log       #
 #               by enumerating the SSH_MSG_KEXINIT packets sent      #
 #               as clear text between the client and server as part  # 
 #               of the negotiation of an SSH connection.             #
