@@ -5,7 +5,7 @@
 # Authors: Ben Reardon (breardon@salesforce.com, @benreardon)        #
 #        : Jeff Atkinson (jatkinson@salesforce.com)                  #
 #        : John Althouse (jalthouse@salesforce.com)                  #
-# Description:  This bro script appends hassh data to ssh.log        #
+# Description:  This Zeek script appends hassh data to ssh.log       #
 #               by enumerating the SSH_MSG_KEXINIT packets sent      #
 #               as clear text between the client and server as part  # 
 #               of the negotiation of an SSH connection.             #
@@ -107,7 +107,7 @@ event ssh_capabilities(c: connection, cookie: string, capabilities: SSH::Capabil
     if ( !c?$ssh ) {return;}
     c$hassh = HASSHStorage();
     
-    # Prior to 2.6.0 bro has a bug which it reverses the Client/server flag.
+    # Prior to 2.6.0 Zeek has a bug which it reverses the Client/server flag.
     # See https://github.com/zeek/zeek/pull/191
     # The "if" statements here do a version check to account for this bug in versions older than 2.6.0
     
