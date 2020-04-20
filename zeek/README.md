@@ -7,7 +7,7 @@
 - hassh, hasshAlgorithms 
 - hasshServer, hasshServerAlgorithms
 - cshka (Client Host Key Algorithms), sshka (Server Host Key Algorithms)  
-- The script has been tested on Bro 2.5, 2.5.1, 2.5.5, 2.6.0, 2.6.1, 2.6.3 and 3.0.0
+- The script has been tested on Bro 2.5, 2.5.1, 2.5.5, 2.6.0, 2.6.1, 2.6.3, 3.0.0 and 3.1.2
 - Note that Zeek (formerly bro) versions < v2.6.0 had a bug which reversed the Client/server flag , see https://github.com/zeek/zeek/pull/191. The current version of the hassh.zeek script does version checking to deal with these version issues. Failure to update Zeek and not the hassh.zeek script will result in the Server and Client packets being processed incorrectly, in effect swapping around hassh with hassServer.  
 
 ## Installation
