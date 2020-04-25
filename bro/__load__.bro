@@ -1,1 +1,0 @@
-@load ./hassh.bro
