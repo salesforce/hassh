@@ -17,7 +17,7 @@
 - Share malicious hassh as Indicators of Compromise.
 - Create an additional level of Client application control, for example one could block all Clients from connecting to an SSH server that are outside of an approved known set of hassh values.
 - Contribute to Non Repudiation in a Forensic context - at a higher level of abstraction than IPSource -  which may be impacted by NAT, or where multiple IP Sources are used.
-- Detect Deceptive Applications. Eg a hasshServer value known to belong to the Cowry/Kippo SSH honeypot server installation, which is purporting to be a common OpenSSH server in the Server String.
+- Detect Deceptive Applications. Eg a hasshServer value known to belong to the Cowrie/Kippo SSH honeypot server installation, which is purporting to be a common OpenSSH server in the Server String.
 - Detect devices having a hassh known to belong to IOT embedded systems. Examples may include cameras, mics, keyloggers, wiretaps that could be easily be hidden from view and communicating quietly over encrypted channels back to a control server. 
 
 ## How does HASSH work:

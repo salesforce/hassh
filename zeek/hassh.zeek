@@ -107,7 +107,7 @@ event ssh_capabilities(c: connection, cookie: string, capabilities: SSH::Capabil
     if ( !c?$ssh ) {return;}
     c$hassh = HASSHStorage();
     
-    # Prior to 2.6.0 bro has a bug which it reverses the Client/server flag.
+    # Prior to 2.6.0 Zeek has a bug which it reverses the Client/server flag.
     # See https://github.com/zeek/zeek/pull/191
     # The "if" statements here do a version check to account for this bug in versions older than 2.6.0
     
