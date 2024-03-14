@@ -8,7 +8,7 @@
 
 "HASSH" is a network fingerprinting standard which can be used to identify specific Client and Server SSH implementations. The fingerprints can be easily stored, searched and shared in the form of an MD5 fingerprint.
 
-HASSH was invented at Salesforce in 2018 and is actively maintained by its original creator here: https://github.com/corelight/hassh
+HASSH was invented at Salesforce in 2018. However, the project is no longer being actively maintained by Salesforce. Its original creator, Ben Reardon maintains the active fork at [Corelight](https://github.com/corelight/hassh)
 
 [![License: BSD 3-Clause License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 ## What can HASSH help with:
